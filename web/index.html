@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TerraMig · Infrastructure adoption</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <section class="auth-gate" id="auth-gate">
+    <div class="auth-card">
+      <div class="auth-brand"><span class="brand-mark">TM</span><div><strong>TerraMig</strong><small>Migration control plane</small></div></div>
+      <form id="login-form">
+        <p class="eyebrow">LOCAL AUTHENTICATION</p>
+        <h1>Sign in</h1>
+        <p>Use the local TerraMig administrator account. External identity providers are not enabled.</p>
+        <div id="auth-error" class="error hidden"></div>
+        <label for="login-username">Username</label>
+        <input id="login-username" name="username" value="admin" autocomplete="username" required>
+        <label for="login-password">Password</label>
+        <input id="login-password" name="password" type="password" autocomplete="current-password" required>
+        <button type="submit" id="login-submit">Sign in</button>
+        <small class="bootstrap-note">Initial local credentials: <code>admin</code> / <code>admin</code>. TerraMig requires an immediate password change.</small>
+      </form>
+      <form id="password-change-form" class="hidden">
+        <p class="eyebrow">PASSWORD CHANGE REQUIRED</p>
+        <h1>Secure the administrator account</h1>
+        <p>Replace the bootstrap password before accessing migration data or controls.</p>
+        <div id="password-error" class="error hidden"></div>
+        <label for="current-password">Current password</label>
+        <input id="current-password" type="password" autocomplete="current-password" required>
+        <label for="new-password">New password</label>
+        <input id="new-password" type="password" autocomplete="new-password" minlength="12" required>
+        <label for="confirm-password">Confirm new password</label>
+        <input id="confirm-password" type="password" autocomplete="new-password" minlength="12" required>
+        <button type="submit" id="password-submit">Change password</button>
+        <small class="bootstrap-note">Use at least 12 characters and three character classes.</small>
+      </form>
+    </div>
+  </section>
+
+  <div class="shell hidden" id="app-shell">
+    <aside class="sidebar">
+      <button class="brand nav-link" data-view="workflow" aria-label="TerraMig home">
+        <span class="brand-mark">TM</span><span>TerraMig</span>
+      </button>
+      <nav>
+        <small class="nav-section-label">ADOPTION WORKFLOW</small>
+        <button class="nav-link active journey-link" data-view="workflow"><span>⌁</span><b>Infrastructure adoption</b><small>ClickOps → governed IaC</small></button>
+        <small class="nav-section-label secondary">EXPLORE</small>
+        <button class="nav-link" data-view="inventory"><span>◇</span>Inventory</button>
+        <button class="nav-link" data-view="modules"><span>▦</span>Private modules</button>
+        <button class="nav-link" data-view="operations"><span>◉</span>Operations</button>
+        <button class="nav-link" data-view="settings"><span>⚙</span>Configuration</button>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="status-dot" id="sidebar-dot"></div>
+        <div><strong id="sidebar-mode">Production integrations</strong><small id="sidebar-detail">Checking readiness</small></div>
+      </div>
+      <div class="sidebar-user"><div><strong id="current-user">admin</strong><small id="persistence-mode">Local session</small></div><button id="logout" class="ghost">Sign out</button></div>
+    </aside>
+
+    <main>
+      <header>
+        <div>
+          <p class="eyebrow" id="page-kicker">INFRASTRUCTURE ADOPTION</p>
+          <h1 id="page-title" class="hidden"></h1>
+          <p class="lede" id="page-lede">Discover what exists, resolve how it connects, and let an AI agent compose selected private or public modules—or verified provider resources—into safe Terraform imports.</p>
+        </div>
+        <button class="mode-pill nav-link" data-view="settings"><span></span><b id="readiness">Checking…</b></button>
+      </header>
+
+      <div id="error" class="error hidden"></div>
+      <div id="success" class="success hidden"></div>
+
+      <section id="view-workflow" class="view">
+        <section class="stepper" aria-label="Workflow stages">
+          <button class="step adoption-step current" data-screen="0"><i>1</i><span>Scope<small>Select project</small></span></button><div class="line"></div>
+          <button class="step adoption-step" data-screen="1"><i>2</i><span>Discover<small>Map resources</small></span></button><div class="line"></div>
+          <button class="step adoption-step" data-screen="2"><i>3</i><span>Match<small>Find modules</small></span></button><div class="line"></div>
+          <button class="step adoption-step" data-screen="3"><i>4</i><span>Generate<small>Agent composition</small></span></button><div class="line"></div>
+          <button class="step adoption-step" data-screen="4"><i>5</i><span>Verify<small>Local plan</small></span></button><div class="line"></div>
+          <button class="step adoption-step" data-screen="5"><i>6</i><span>Deliver<small>Git branch / PR</small></span></button><div class="line"></div>
+          <button class="step adoption-step" data-screen="6"><i>7</i><span>Import<small>HCP lifecycle</small></span></button>
+        </section>
+
+        <section class="workspace">
+          <div class="primary wizard-shell">
+            <section class="wizard-screen" data-wizard-screen="0">
+              <article class="panel scope-panel">
+                <div class="panel-title"><div><p class="eyebrow">SCOPE</p><h2>Choose the adoption source and destination</h2></div><span class="tag" id="source-tag">Fixture inventory</span></div>
+                <p class="screen-copy">Nothing is queried until you continue. Review the selected project and HCP Terraform target first.</p>
+                <label for="project">GCP project</label><select id="project"><option>Loading projects…</option></select>
+                <div class="target-line"><span>HCP target</span><strong id="hcp-target">Not configured</strong></div>
+              </article>
+              <article class="panel" id="discovery-terminal-panel">
+                <div class="panel-title"><div><p class="eyebrow">LIVE DISCOVERY SESSION</p><h2>Cloud Asset inventory terminal</h2></div><span class="agent-run-status" id="discovery-run-status">Ready</span></div>
+                <p class="screen-copy">TerraMig streams each Cloud Asset query, elapsed-time heartbeats, result counts, deduplication, and capability assessment while large projects are inspected.</p>
+                <div class="agent-terminal"><div class="agent-terminal-bar"><span></span><span></span><span></span><b id="discovery-process-label">Waiting for discover</b></div><pre><code id="discovery-live-log">$ Start discovery to open the Cloud Asset session.</code></pre></div>
+              </article>
+            </section>
+
+            <section class="wizard-screen hidden" data-wizard-screen="1">
+              <article class="panel" id="resources-panel">
+                <div class="panel-title"><div><p class="eyebrow">DISCOVERY</p><h2>Review existing infrastructure</h2></div><b id="resource-count">0 resources</b></div>
+                <p class="screen-copy">Choose the deployed resources TerraMig should adopt. Dependencies of selected resources are included automatically. Open details to review attributes and support status.</p>
+                <div class="selection-toolbar">
+                  <div><strong id="resource-selection-count">0 selected</strong><small>Resources are grouped for review. Partial, unsupported, and previously imported resources are not selected automatically.</small></div>
+                  <div class="resource-filter-grid">
+                    <label for="resource-search"><span>Search</span><input id="resource-search" type="search" placeholder="Name, type, location…"></label>
+                    <label for="resource-grouping"><span>Group by</span><select id="resource-grouping"><option value="domain">Migration domain</option><option value="service">GCP service</option><option value="location">Location</option><option value="support">Support status</option></select></label>
+                    <label for="resource-visibility"><span>Support</span><select id="resource-visibility"><option value="supported">Supported only</option><option value="all">All discovered</option></select></label>
+                    <label for="resource-management"><span>Management</span><select id="resource-management"><option value="unmanaged">Not previously imported</option><option value="tracked">Previously imported</option><option value="all">All resources</option></select></label>
+                  </div>
+                  <div class="resource-selection-actions"><button class="ghost" id="select-supported-resources">Select supported unmanaged</button><button class="ghost" id="clear-resource-selection">Clear all</button></div>
+                </div>
+                <div id="resources" class="resource-list"></div>
+              </article>
+            </section>
+
+            <section class="wizard-screen hidden" data-wizard-screen="2">
+              <article class="panel" id="matching-panel">
+                <div class="panel-title"><div><p class="eyebrow">MODULE MATCHING</p><h2>Select the Terraform representation</h2></div><span class="tag" id="match-count">Pending</span></div>
+                <p class="screen-copy">Choose a Terraform representation for each resource. HCP Private Library modules are trusted by provenance, but composite modules can still introduce drift. Keep the direct provider resource when a module does not exactly represent the deployed infrastructure.</p>
+                <div class="module-selection-toolbar"><div><strong>Bulk selection</strong><small id="module-bulk-status">The registry scan resolves every module source to its latest usable version.</small></div><div class="module-selection-actions"><button class="ghost" id="select-latest-compatible-modules">Select latest compatible modules</button><button class="ghost" id="select-direct-resources">Use direct resources</button></div></div>
+                <div class="public-registry-toolbar"><div><strong>Official public Terraform Registry</strong><small id="public-registry-status">Not searched · verified publishers only</small></div><button class="ghost" id="search-public-modules">Search public modules</button></div>
+                <div class="match-filter-toolbar">
+                  <label for="match-search"><span>Search selected resources</span><input id="match-search" type="search" placeholder="Name, service, Terraform type…"></label>
+                  <label for="match-grouping"><span>Group by</span><select id="match-grouping"><option value="decision">Representation decision</option><option value="domain">Migration domain</option><option value="service">GCP service</option><option value="location">Location</option></select></label>
+                </div>
+                <div id="match-list" class="resource-list"></div>
+              </article>
+            </section>
+
+            <section class="wizard-screen hidden" data-wizard-screen="3">
+              <article class="panel" id="composition-terminal-panel">
+                <div class="panel-title"><div><p class="eyebrow">LIVE AGENT SESSION</p><h2>Bob / Copilot composition terminal</h2></div><span class="agent-run-status" id="composition-run-status">Ready</span></div>
+                <p class="screen-copy">Composition runs as a durable background job. TerraMig streams safe process milestones, assurance checks, and bounded self-repair attempts here while the agent works.</p>
+                <div class="agent-terminal"><div class="agent-terminal-bar"><span></span><span></span><span></span><b id="composition-process-label">Waiting for composition</b></div><pre><code id="composition-live-log">$ Select representations and start composition to open an agent session.</code></pre></div>
+              </article>
+              <article class="panel" id="code-panel">
+                <div class="panel-title"><div><p class="eyebrow">GENERATED ARTIFACT</p><h2>Terraform configuration</h2></div><button class="ghost" id="copy">Copy code</button></div>
+                <pre><code id="terraform"></code></pre>
+              </article>
+              <article class="panel" id="composition-panel">
+                <div class="panel-title"><div><p class="eyebrow">AGENT COMPOSITION</p><h2>Generation evidence</h2></div><span class="tag" id="agent-meta">Agent</span></div>
+                <div class="evidence-grid"><div><h3>Execution log</h3><div id="composition-log" class="detail-list"></div></div><div><h3>Module decisions</h3><div id="composition-decisions" class="detail-list"></div></div></div>
+                <div class="assurance-panel"><div><span>Prompt evidence</span><code id="prompt-evidence">—</code></div><div><span>Response evidence</span><code id="response-evidence">—</code></div><div><span>Redactions</span><strong id="redaction-count">0</strong></div></div>
+                <h3>AI assurance checks</h3><div id="assurance-checks" class="detail-list"></div>
+                <h3>Import mappings</h3><div class="table-wrap"><table><thead><tr><th>Terraform address</th><th>Existing remote ID</th></tr></thead><tbody id="composition-imports"></tbody></table></div>
+                <div id="composition-warnings" class="warning-box hidden"></div>
+              </article>
+            </section>
+
+            <section class="wizard-screen hidden" data-wizard-screen="4">
+              <article class="panel">
+                <div class="panel-title"><div><p class="eyebrow">LIVE TERRAFORM SESSION</p><h2>Validation and import-plan terminal</h2></div><span class="agent-run-status" id="verification-run-status">Ready</span></div>
+                <p class="screen-copy">Terraform commands, bounded output tails, validation diagnostics, and plan results stream from the durable verification job.</p>
+                <div class="agent-terminal"><div class="agent-terminal-bar"><span></span><span></span><span></span><b id="verification-process-label">Waiting for verification</b></div><pre><code id="verification-live-log">$ Start local verification to open the Terraform session.</code></pre></div>
+              </article>
+              <article class="panel" id="verification-panel">
+                <div class="panel-title"><div><p class="eyebrow">LOCAL TERRAFORM GATE</p><h2>Validate and drift plan</h2></div><span class="verification-badge" id="verification-badge">Pending</span></div>
+                <p id="verification-summary" class="action-copy">Run local verification to unlock the final review.</p>
+                <div id="verification-diagnostics" class="detail-list"></div>
+                <label class="confirmation risk hidden" id="drift-acceptance"><input type="checkbox" id="accept-drift"><span><b>I understand and accept the detected drift</b><small id="drift-acceptance-note">The HCP saved plan may include create, update, or destroy actions in addition to imports. Review it carefully before applying it in HCP Terraform.</small></span></label>
+                <button class="ghost hidden" id="return-to-match">← Back to Match and change representations</button>
+                <details><summary>Commands and Terraform output</summary><div id="verification-commands" class="command-list"></div><pre class="verification-output"><code id="verification-output"></code></pre></details>
+              </article>
+            </section>
+
+            <section class="wizard-screen hidden" data-wizard-screen="5">
+              <article class="panel">
+                <div class="panel-title"><div><p class="eyebrow">LIVE GIT SESSION</p><h2>Repository delivery terminal</h2></div><span class="agent-run-status" id="git-run-status">Ready</span></div>
+                <p class="screen-copy">Clone, overlay, commit, push, and pull-request milestones stream from the durable Git delivery job.</p>
+                <div class="agent-terminal"><div class="agent-terminal-bar"><span></span><span></span><span></span><b id="git-process-label">Waiting for Git delivery</b></div><pre><code id="git-live-log">$ Configure repositories and start delivery to open the Git session.</code></pre></div>
+              </article>
+              <article class="panel" id="git-delivery-panel">
+                <div class="panel-title"><div><p class="eyebrow">GIT DELIVERY</p><h2>Materialize the governed repository</h2></div><span class="verification-badge" id="git-delivery-badge">Pending</span></div>
+                <p class="screen-copy">TerraMig copies non-conflicting files from a model repository, overlays the verified Terraform bundle in the chosen path, and pushes a dedicated branch to an existing target repository. A verified GitHub token uses authenticated HTTPS even when a GitHub SSH URL is entered; SSH remains the fallback.</p>
+                <div class="form-grid">
+                  <div class="field full"><label for="git-model-repository">Model repository</label><input id="git-model-repository" placeholder="git@github.com:organization/model.git"></div>
+                  <div class="field full"><label for="git-target-repository">Target application repository</label><input id="git-target-repository" placeholder="git@github.com:organization/application.git"></div>
+                  <div class="field"><label for="git-model-ref">Model ref</label><input id="git-model-ref" value="main"></div>
+                  <div class="field"><label for="git-base-branch">Target base branch</label><input id="git-base-branch" value="main"></div>
+                  <div class="field"><label for="git-delivery-branch">Migration branch <span>optional</span></label><input id="git-delivery-branch" placeholder="terramig/generated"></div>
+                  <div class="field"><label for="git-target-path">Terraform destination path</label><input id="git-target-path" value="terraform"></div>
+                </div>
+                <label class="confirmation"><input type="checkbox" id="git-create-pr"><span><b>Open a GitHub pull request</b><small>SSH authenticates clone and push. Pull-request creation additionally requires a verified GitHub API token configured below or by the deployment environment.</small></span></label>
+                <label class="confirmation"><input type="checkbox" id="git-update-existing-directory"><span><b>Update an existing Terraform directory</b><small>Write stable per-resource files such as <code>google_storage_bucket_archive.tf</code>, preserve unrelated configuration, and reuse existing backend and provider files.</small></span></label>
+                <label class="confirmation"><input type="checkbox" id="git-allow-overwrite"><span><b>Replace colliding Terraform files</b><small>Leave this disabled to fail safely when a generated filename is already owned by the target repository. Files recorded in <code>terramig.json</code> can be updated without enabling replacement.</small></span></label>
+                <div id="git-delivery-result" class="git-delivery-result hidden">
+                  <div class="import-target"><div><span>Branch</span><strong id="git-result-branch">—</strong></div><div><span>Commit</span><strong id="git-result-commit">—</strong></div><div><span>Files</span><strong id="git-result-files">—</strong></div></div>
+                  <div class="guardrail final"><span>→</span><div><strong>Authoritative delivery</strong><p id="git-result-output"></p><a id="git-result-pr" class="metrics-link hidden" target="_blank" rel="noreferrer">Open pull request ↗</a></div></div>
+                </div>
+              </article>
+            </section>
+
+            <section class="wizard-screen hidden" data-wizard-screen="6">
+              <article class="panel">
+                <div class="panel-title"><div><p class="eyebrow">LIVE HCP SESSION</p><h2>Submission and reconciliation terminal</h2></div><span class="agent-run-status" id="hcp-run-status">Ready</span></div>
+                <p class="screen-copy">Target protection, configuration upload, saved-plan submission, manual-apply monitoring, and post-import drift assurance stream here.</p>
+                <div class="agent-terminal"><div class="agent-terminal-bar"><span></span><span></span><span></span><b id="hcp-process-label">Waiting for HCP submission</b></div><pre><code id="hcp-live-log">$ Authorize submission to open the HCP Terraform session.</code></pre></div>
+              </article>
+              <article class="panel import-review" id="import-review-panel">
+                <div class="panel-title"><div><p class="eyebrow">FINAL APPROVAL</p><h2>HCP Terraform import</h2></div><span class="verification-badge pass" id="import-badge">Ready</span></div>
+                <div class="import-target"><div><span>Organization / workspace</span><strong id="import-target"></strong></div><div><span>Operations</span><strong id="import-operation-count"></strong></div><div><span>Plan status</span><strong id="import-plan-status">Import-only · no drift</strong></div></div>
+                <div class="guardrail final"><span>✓</span><div><strong>HCP target protection</strong><div id="target-protection-evidence"><div>Protection runs twice: before upload and immediately before saved-plan submission.</div></div></div></div>
+                <div class="guardrail final"><span>!</span><div><strong id="import-boundary-title">This is the state mutation boundary</strong><p id="import-boundary-copy">The next action submits the reviewed configuration and import mappings to the workspace above.</p></div></div>
+                <label class="confirmation risk" id="nonempty-workspace-override"><input type="checkbox" id="allow-nonempty-workspace"><span><b>Allow incremental adoption into a non-empty HCP workspace</b><small>TerraMig preserves the workspace’s current configuration before adding this adoption. The saved plan is automatically discarded if HCP still reports any destroy action; manual plan review remains mandatory.</small></span></label>
+                <label class="confirmation" id="adoption-confirmation"><input type="checkbox" id="adoption-confirm"><span><b>I authorize HCP plan submission</b><small>TerraMig uploads a provisional configuration and queues a saved plan. Applying that plan remains a separate action in HCP Terraform.</small></span></label>
+                <div id="hcp-lifecycle" class="hcp-lifecycle"></div>
+              </article>
+            </section>
+
+            <footer class="wizard-nav"><button class="wizard-previous" id="wizard-previous">← Previous</button><div><span id="wizard-position">Step 1 of 6</span><small id="wizard-state">Scope not started</small></div><button id="wizard-next">Discover resources →</button></footer>
+          </div>
+
+          <aside class="activity panel">
+            <div class="panel-title"><div><p class="eyebrow">AUDIT TRAIL</p><h2>Run activity</h2></div></div>
+            <div id="events" class="events"><div class="empty">Start an adoption run to see each decision and gate.</div></div>
+            <div class="operational-actions"><button class="ghost" id="download-workflow-report" disabled>Download evidence</button><button class="ghost" id="new-workflow">New run</button></div>
+            <div class="guardrail"><span>◈</span><div><strong>Review stays mandatory</strong><p>The agent generates a proposal. Import is a separate, explicit action.</p></div></div>
+          </aside>
+        </section>
+      </section>
+
+      <section id="view-inventory" class="view hidden">
+        <article class="panel">
+          <div class="panel-title"><div><p class="eyebrow">GCP CLOUD ASSET INVENTORY</p><h2>Discovered resources</h2></div><span class="tag" id="inventory-count">Not loaded</span></div>
+          <div class="toolbar"><select id="inventory-project"><option>Loading projects…</option></select><button id="load-inventory">Load inventory</button></div>
+          <div id="inventory-services" class="service-coverage"><span class="muted-copy">Load inventory to identify the GCP services currently used by this project.</span></div>
+          <div class="table-wrap"><table><thead><tr><th>Resource</th><th>Type</th><th>Terraform coverage</th><th>Location</th><th>Dependencies</th></tr></thead><tbody id="inventory-body"><tr><td colspan="5" class="empty-cell">Choose a project and load its inventory.</td></tr></tbody></table></div>
+        </article>
+      </section>
+
+      <section id="view-modules" class="view hidden">
+        <article class="panel">
+          <div class="panel-title"><div><p class="eyebrow">HCP TERRAFORM PRIVATE LIBRARY</p><h2>Governed module catalog</h2></div><div class="panel-actions"><span class="tag" id="module-count">Not loaded</span><button id="load-modules" class="compact">Scan library</button></div></div>
+          <p class="screen-copy">TerraMig automatically trusts every HCP Private Library module that declares the Google provider, whether its registry source is private or curated public. Multi-resource modules are selectable using their discovered type-compatible addresses; modules Terraform cannot load remain visible but incompatible.</p>
+          <div class="catalog-status-grid"><div><span>Catalog status</span><strong id="catalog-status">Not checked</strong></div><div><span>Integrity</span><code id="catalog-digest">—</code></div><div><span>GCP coverage</span><strong id="capability-coverage">—</strong></div></div>
+          <div class="agent-terminal"><div class="agent-terminal-bar"><span></span><span></span><span></span><b id="catalog-scan-label">Waiting for HCP library scan</b><em class="agent-run-status" id="catalog-scan-status">Ready</em></div><pre><code id="catalog-scan-log">$ Open this page or select Scan library to build the governed catalog.</code></pre></div>
+          <div id="module-grid" class="module-grid"><div class="empty-cell">Load the catalog to inspect available modules.</div></div>
+        </article>
+      </section>
+
+      <section id="view-operations" class="view hidden">
+        <article class="panel">
+          <div class="panel-title"><div><p class="eyebrow">OPERATIONS</p><h2>Migration control plane</h2></div><div class="panel-actions"><span class="tag" id="operations-updated">Not loaded</span><button id="operations-refresh" class="compact">Refresh</button></div></div>
+            <div class="operations-summary">
+            <div><span>Uptime</span><strong id="operations-uptime">—</strong></div>
+            <div><span>Adoption workflows</span><strong id="operations-workflows">—</strong></div>
+              <div><span>Failed operations</span><strong id="operations-failures">—</strong></div>
+            </div>
+          <div class="panel-title operations-subtitle"><div><p class="eyebrow">DURABLE EXECUTION</p><h2>Queued and leased jobs</h2></div><span class="tag" id="operations-jobs">—</span></div>
+          <div class="table-wrap"><table><thead><tr><th>Job</th><th>Action</th><th>Status</th><th>Attempts</th><th>Control</th></tr></thead><tbody id="jobs-body"><tr><td colspan="5" class="empty-cell">Refresh to load durable jobs.</td></tr></tbody></table></div>
+          <div class="panel-title operations-subtitle"><div><p class="eyebrow">RECENT ACTIVITY</p><h2>Requests and workflow operations</h2></div><a class="metrics-link" href="/api/metrics" target="_blank" rel="noreferrer">Prometheus metrics ↗</a></div>
+          <div class="table-wrap"><table><thead><tr><th>Time</th><th>Type</th><th>Operation</th><th>Status</th><th>Duration</th></tr></thead><tbody id="operations-body"><tr><td colspan="5" class="empty-cell">Refresh to load operational telemetry.</td></tr></tbody></table></div>
+          <div class="persisted-runs"><div><p class="eyebrow">DURABLE HISTORY</p><h2>Infrastructure adoption runs</h2><div id="persisted-workflows" class="persisted-list"><div class="empty">No persisted workflows.</div></div></div></div>
+        </article>
+      </section>
+
+      <section id="view-settings" class="view hidden">
+        <div class="settings-grid">
+          <form class="panel" id="settings-form">
+            <div class="panel-title"><div><p class="eyebrow">PRODUCTION RUNTIME</p><h2>Integration configuration</h2></div></div>
+            <p class="screen-copy">TerraMig connects only to configured production integrations. Missing or unverified credentials fail closed and block the affected workflow phase.</p>
+            <div class="form-grid">
+              <div class="field full"><label for="hcp-hostname">HCP Terraform hostname</label><input id="hcp-hostname" placeholder="app.terraform.io"></div>
+              <div class="field"><label for="hcp-organization">Organization name</label><input id="hcp-organization" placeholder="my-organization"></div>
+              <div class="field"><label for="hcp-workspace">Adoption workspace name</label><input id="hcp-workspace" placeholder="gcp-adoption-prod"></div>
+              <div class="field full">
+                <label class="confirmation"><input type="checkbox" id="hcp-submission-enabled"><span><b>Enable protected HCP saved-plan submission</b><small>Enabled by default. TerraMig still requires explicit authorization for every workflow, queues a saved plan only, and never auto-applies it.</small></span></label>
+              </div>
+              <div class="field full credential-card">
+                <div class="credential-heading"><div><label for="hcp-credential">HCP Terraform token</label><small>Stored encrypted and exposed only to HCP Terraform clients and Terraform tooling.</small></div><span class="credential-status" id="hcp-credential-status">Not configured</span></div>
+                <input id="hcp-credential" type="password" autocomplete="off" spellcheck="false" placeholder="Paste a user or team token">
+                <div class="credential-actions"><button type="button" id="hcp-credential-save">Save token</button><button type="button" class="ghost" id="hcp-credential-test">Test connection</button><button type="button" class="ghost danger" id="hcp-credential-clear">Clear</button></div>
+                <small class="credential-note" id="hcp-credential-note">The token is never returned to this browser. Testing performs one read-only account request.</small>
+              </div>
+              <div class="field full credential-card">
+                <div class="credential-heading"><div><label for="gcp-project-id">Google Cloud connection</label><small>Configure the project and either save a credential JSON document or use deployment-managed Application Default Credentials.</small></div><span class="credential-status" id="gcp-connection-status">Not verified</span></div>
+                <label for="gcp-project-id" class="credential-test-label">GCP project ID</label>
+                <input id="gcp-project-id" placeholder="my-gcp-project">
+                <label for="gcp-credential" class="credential-test-label">Application Default Credential JSON</label>
+                <textarea id="gcp-credential" class="secret-textarea" rows="5" autocomplete="off" spellcheck="false" placeholder="Paste service_account, authorized_user, or external_account JSON"></textarea>
+                <label for="gcp-credential-file" class="credential-test-label">Or select the ADC file directly</label>
+                <input id="gcp-credential-file" type="file" accept=".json,application/json">
+                <small class="credential-note" id="gcp-credential-file-note">The selected file remains in the browser until you choose Save &amp; test.</small>
+                <div class="credential-actions"><button type="button" id="gcp-credential-save">Save &amp; test connection</button><button type="button" class="ghost" id="gcp-connection-test">Retest connection</button><button type="button" class="ghost danger" id="gcp-credential-clear">Clear credentials</button><button type="button" class="ghost danger" id="gcp-connection-reset">Reset connection</button></div>
+                <small class="credential-note" id="gcp-connection-note">Save &amp; test persists the project and credential atomically, then reads project metadata and one Cloud Asset Inventory result.</small>
+              </div>
+              <div class="field"><label for="ai-provider">AI agent</label><select id="ai-provider"><option value="github-copilot">GitHub Copilot</option><option value="ibm-bob">IBM Bob</option></select></div>
+              <div class="field full credential-card">
+                <div class="credential-heading"><div><label for="ai-credential" id="ai-credential-label">GitHub Copilot token</label><small id="ai-credential-help">Stored encrypted and exposed only to the selected agent process.</small></div><span class="credential-status" id="ai-credential-status">Not configured</span></div>
+                <input id="ai-credential" type="password" autocomplete="off" spellcheck="false" placeholder="Paste a token to replace the stored credential">
+                <div class="credential-actions"><button type="button" id="ai-credential-save">Save credential</button><button type="button" class="ghost" id="ai-credential-test">Test connection</button><button type="button" class="ghost danger" id="ai-credential-clear">Clear</button></div>
+                <small class="credential-note" id="ai-credential-note">The secret is never returned to this browser. Testing uses one minimal agent request.</small>
+              </div>
+              <div class="field full credential-card">
+                <div class="credential-heading"><div><label for="github-credential">GitHub API token</label><small>Used for authenticated HTTPS Git operations and optional pull-request creation.</small></div><span class="credential-status" id="github-credential-status">Not configured</span></div>
+                <input id="github-credential" type="password" autocomplete="off" spellcheck="false" placeholder="Paste a fine-grained personal access token">
+                <div class="credential-actions"><button type="button" id="github-credential-save">Save token</button><button type="button" class="ghost" id="github-credential-test">Test connection</button><button type="button" class="ghost danger" id="github-credential-clear">Clear</button></div>
+                <small class="credential-note" id="github-credential-note">The token is never returned to this browser. Testing performs one read-only GitHub account request.</small>
+              </div>
+              <div class="field full credential-card">
+                <div class="credential-heading"><div><label for="git-ssh-credential">Git SSH private key</label><small>Use a dedicated, non-passphrase-protected deploy key for background clone and push operations.</small></div><span class="credential-status" id="git-ssh-credential-status">Not configured</span></div>
+                <textarea id="git-ssh-credential" class="secret-textarea" rows="5" autocomplete="off" spellcheck="false" placeholder="Paste an OpenSSH or PEM private key"></textarea>
+                <label for="git-ssh-test-repository" class="credential-test-label">Repository used for read-only connection test</label>
+                <input id="git-ssh-test-repository" placeholder="git@github.com:organization/repository.git">
+                <div class="credential-actions"><button type="button" id="git-ssh-credential-save">Save key &amp; test access</button><button type="button" class="ghost" id="git-ssh-credential-test">Retest repository</button><button type="button" class="ghost danger" id="git-ssh-credential-clear">Clear</button></div>
+                <small class="credential-note" id="git-ssh-credential-note">The private key is never returned to this browser. GitHub host keys are pinned; custom Git hosts require trusted known_hosts configuration.</small>
+              </div>
+            </div>
+            <button type="submit">Save configuration</button>
+          </form>
+          <aside class="panel readiness">
+            <div class="panel-title"><div><p class="eyebrow">PRODUCTION READINESS</p><h2>Connection readiness</h2></div></div>
+            <div id="readiness-list"></div>
+            <div class="env-help"><strong>Isolated credential handling</strong><p>Application-managed credentials are encrypted before PostgreSQL storage. HCP, AI, and GitHub credentials reach only their intended clients. GCP JSON and SSH keys are written with mode <code>0600</code> inside short-lived process directories and deleted with those directories. Environment-provided credentials remain supported for deployment-managed secrets.</p></div>
+          </aside>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div class="drawer-backdrop hidden" id="drawer-backdrop"></div>
+  <aside class="resource-drawer hidden" id="resource-drawer" aria-label="Resource details">
+    <button class="drawer-close" id="drawer-close" aria-label="Close resource details">×</button>
+    <p class="eyebrow">EXISTING INFRASTRUCTURE</p><h2 id="drawer-title">Resource</h2><p class="drawer-id" id="drawer-id"></p>
+    <div class="drawer-facts" id="drawer-facts"></div>
+    <h3>Terraform adoption capability</h3><div class="detail-list" id="drawer-capability"></div>
+    <h3>Discovered attributes</h3><div class="attribute-list" id="drawer-attributes"></div>
+    <h3>Dependencies</h3><div class="detail-list" id="drawer-dependencies"></div>
+    <h3>Private module candidates</h3><div class="detail-list" id="drawer-candidates"></div>
+  </aside>
+  <script src="/app.js"></script>
+</body>
+</html>

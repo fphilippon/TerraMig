@@ -1,0 +1,4 @@
+interface:
+  display_name: "Adopt GCP Infrastructure"
+  short_description: "Ground existing GCP in governed HCP modules"
+  default_prompt: "Use $adopt-gcp-infrastructure to adopt selected GCP resources with trusted HCP modules, using a verified direct resource only when no module is selected."

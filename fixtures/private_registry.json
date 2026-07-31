@@ -1,0 +1,124 @@
+{
+  "modules": [
+    {
+      "id": "mod-network-3.2.1",
+      "source": "app.terraform.io/acme/network/google",
+      "version": "3.2.1",
+      "resource_types": ["compute.googleapis.com/Network"],
+      "inputs": ["name", "routing_mode", "auto_create_subnetworks"],
+      "outputs": ["network_id", "network_self_link"],
+      "managed_resource_address": "google_compute_network.this",
+      "description": "Approved VPC module"
+    },
+    {
+      "id": "mod-subnet-2.4.0",
+      "source": "app.terraform.io/acme/subnetwork/google",
+      "version": "2.4.0",
+      "resource_types": ["compute.googleapis.com/Subnetwork"],
+      "inputs": ["name", "region", "ip_cidr_range", "network"],
+      "outputs": ["subnetwork_id", "subnetwork_self_link"],
+      "managed_resource_address": "google_compute_subnetwork.this",
+      "description": "Approved regional subnet module"
+    },
+    {
+      "id": "mod-vm-5.1.0",
+      "source": "app.terraform.io/acme/compute-instance/google",
+      "version": "5.1.0",
+      "resource_types": ["compute.googleapis.com/Instance"],
+      "inputs": ["name", "zone", "machine_type", "subnetwork", "image"],
+      "outputs": ["instance_id", "self_link"],
+      "managed_resource_address": "google_compute_instance.this",
+      "description": "Hardened compute instance module"
+    },
+    {
+      "id": "mod-bucket-1.8.3",
+      "source": "app.terraform.io/acme/storage-bucket/google",
+      "version": "1.8.3",
+      "resource_types": ["storage.googleapis.com/Bucket"],
+      "inputs": ["name", "location", "storage_class", "versioning"],
+      "outputs": ["bucket_name", "bucket_url"],
+      "managed_resource_address": "google_storage_bucket.this",
+      "description": "Policy-compliant Cloud Storage module"
+    },
+    {
+      "id": "mod-firewall-2.1.0",
+      "source": "app.terraform.io/acme/firewall/google",
+      "version": "2.1.0",
+      "resource_types": ["compute.googleapis.com/Firewall"],
+      "inputs": ["name", "network", "direction", "source_ranges", "allow"],
+      "outputs": ["firewall_id"],
+      "managed_resource_address": "google_compute_firewall.this",
+      "description": "Approved VPC firewall rule module"
+    },
+    {
+      "id": "mod-topic-1.4.0",
+      "source": "app.terraform.io/acme/pubsub-topic/google",
+      "version": "1.4.0",
+      "resource_types": ["pubsub.googleapis.com/Topic"],
+      "inputs": ["name", "message_retention_duration"],
+      "outputs": ["topic_id", "topic_name"],
+      "managed_resource_address": "google_pubsub_topic.this",
+      "description": "Governed Pub/Sub topic module"
+    },
+    {
+      "id": "mod-subscription-1.6.0",
+      "source": "app.terraform.io/acme/pubsub-subscription/google",
+      "version": "1.6.0",
+      "resource_types": ["pubsub.googleapis.com/Subscription"],
+      "inputs": ["name", "topic", "ack_deadline_seconds"],
+      "outputs": ["subscription_id"],
+      "managed_resource_address": "google_pubsub_subscription.this",
+      "description": "Governed Pub/Sub subscription module"
+    },
+    {
+      "id": "mod-artifact-repository-1.2.0",
+      "source": "app.terraform.io/acme/artifact-repository/google",
+      "version": "1.2.0",
+      "resource_types": ["artifactregistry.googleapis.com/Repository"],
+      "inputs": ["name", "location", "format", "description"],
+      "outputs": ["repository_id"],
+      "managed_resource_address": "google_artifact_registry_repository.this",
+      "description": "Approved Artifact Registry module"
+    },
+    {
+      "id": "mod-secret-2.0.0",
+      "source": "app.terraform.io/acme/secret/google",
+      "version": "2.0.0",
+      "resource_types": ["secretmanager.googleapis.com/Secret"],
+      "inputs": ["name", "replication", "labels"],
+      "outputs": ["secret_id"],
+      "managed_resource_address": "google_secret_manager_secret.this",
+      "description": "Secret metadata module; secret payloads are excluded"
+    },
+    {
+      "id": "mod-cloud-sql-4.0.0",
+      "source": "app.terraform.io/acme/cloud-sql/google",
+      "version": "4.0.0",
+      "resource_types": ["sqladmin.googleapis.com/Instance"],
+      "inputs": ["name", "region", "database_version", "tier"],
+      "outputs": ["instance_id", "connection_name"],
+      "managed_resource_address": "google_sql_database_instance.this",
+      "description": "Approved Cloud SQL instance module"
+    },
+    {
+      "id": "mod-dns-zone-1.1.0",
+      "source": "app.terraform.io/acme/dns-zone/google",
+      "version": "1.1.0",
+      "resource_types": ["dns.googleapis.com/ManagedZone"],
+      "inputs": ["name", "dns_name", "visibility"],
+      "outputs": ["zone_id", "name_servers"],
+      "managed_resource_address": "google_dns_managed_zone.this",
+      "description": "Approved Cloud DNS managed-zone module"
+    },
+    {
+      "id": "mod-service-account-1.3.0",
+      "source": "app.terraform.io/acme/service-account/google",
+      "version": "1.3.0",
+      "resource_types": ["iam.googleapis.com/ServiceAccount"],
+      "inputs": ["account_id", "display_name"],
+      "outputs": ["email", "service_account_id"],
+      "managed_resource_address": "google_service_account.this",
+      "description": "Approved service account module"
+    }
+  ]
+}

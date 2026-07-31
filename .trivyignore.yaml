@@ -1,0 +1,46 @@
+vulnerabilities:
+  # Copilot CLI 1.0.71 is the latest upstream release and still embeds this
+  # dependency in its platform-specific Foundry bundle.
+  - id: CVE-2026-39244
+    paths:
+      - "usr/local/lib/node_modules/@github/copilot/node_modules/@github/copilot-linux-arm64/foundry-local-sdk/node_modules/foundry-local-sdk/node_modules/adm-zip/package.json"
+      - "usr/local/lib/node_modules/@github/copilot/node_modules/@github/copilot-linux-x64/foundry-local-sdk/node_modules/foundry-local-sdk/node_modules/adm-zip/package.json"
+    statement: No patched GitHub Copilot CLI release is available.
+    expired_at: 2026-10-29
+  # The current Google Cloud SDK amd64 package bundles this wheel; the arm64
+  # package does not, so this is exercised by the GitHub runner scan.
+  - id: GHSA-537c-gmf6-5ccf
+    paths:
+      - "usr/lib/google-cloud-sdk/platform/bundledpythonunix/lib/python3.14/site-packages/cryptography-46.0.7.dist-info/METADATA"
+    statement: No patched Google Cloud SDK release is available.
+    expired_at: 2026-10-29
+  # Terraform 1.15.8 and Terraform MCP Server 1.1.0 are the latest stable
+  # vendor releases. Both still embed gRPC-Go below the patched 1.82.1 release.
+  - id: GHSA-hrxh-6v49-42gf
+    paths:
+      - "usr/local/bin/terraform"
+      - "usr/local/bin/terraform-mcp-server"
+    statement: No patched stable HashiCorp Terraform or Terraform MCP release is available.
+    expired_at: 2026-10-29
+  - id: CVE-2026-27145
+    paths: ["usr/local/bin/terraform"]
+    statement: No patched stable HashiCorp Terraform release is available.
+    expired_at: 2026-10-29
+  - id: CVE-2026-39822
+    paths:
+      - "usr/local/bin/terraform"
+      - "usr/lib/google-cloud-sdk/bin/gcloud-crc32c"
+    statement: No patched stable HashiCorp or Google Cloud CLI release is available.
+    expired_at: 2026-10-29
+  - id: CVE-2026-42504
+    paths: ["usr/local/bin/terraform"]
+    statement: No patched stable HashiCorp Terraform release is available.
+    expired_at: 2026-10-29
+  # Terraform 1.15.8 and Terraform MCP Server 1.1.0 are the latest stable
+  # vendor releases. Both still embed golang.org/x/text below 0.39.0.
+  - id: CVE-2026-56852
+    paths:
+      - "usr/local/bin/terraform"
+      - "usr/local/bin/terraform-mcp-server"
+    statement: No patched stable HashiCorp Terraform or Terraform MCP release is available.
+    expired_at: 2026-10-29

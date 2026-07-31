@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.terramig/
+github/
+.env
+.env.*
+!.env.example

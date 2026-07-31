@@ -1,0 +1,98 @@
+{
+  "projects": [
+    {
+      "id": "acme-clickops-prod",
+      "name": "Acme ClickOps Production",
+      "resources": [
+        {
+          "id": "projects/acme-clickops-prod/global/networks/app-vpc",
+          "type": "compute.googleapis.com/Network",
+          "name": "app-vpc",
+          "location": "global",
+          "attributes": {"name": "app-vpc", "routing_mode": "REGIONAL", "auto_create_subnetworks": false}
+        },
+        {
+          "id": "projects/acme-clickops-prod/regions/europe-west1/subnetworks/app-subnet",
+          "type": "compute.googleapis.com/Subnetwork",
+          "name": "app-subnet",
+          "location": "europe-west1",
+          "attributes": {"name": "app-subnet", "region": "europe-west1", "ip_cidr_range": "10.20.0.0/24", "network": "app-vpc"},
+          "dependency_ids": ["projects/acme-clickops-prod/global/networks/app-vpc"]
+        },
+        {
+          "id": "projects/acme-clickops-prod/zones/europe-west1-b/instances/web-01",
+          "type": "compute.googleapis.com/Instance",
+          "name": "web-01",
+          "location": "europe-west1-b",
+          "attributes": {"name": "web-01", "zone": "europe-west1-b", "machine_type": "e2-small", "subnetwork": "app-subnet", "image": "debian-cloud/debian-12"},
+          "dependency_ids": ["projects/acme-clickops-prod/regions/europe-west1/subnetworks/app-subnet"]
+        },
+        {
+          "id": "acme-clickops-prod-artifacts",
+          "type": "storage.googleapis.com/Bucket",
+          "name": "acme-clickops-prod-artifacts",
+          "location": "EU",
+          "attributes": {"name": "acme-clickops-prod-artifacts", "location": "EU", "storage_class": "STANDARD", "versioning": true}
+        },
+        {
+          "id": "projects/acme-clickops-prod/global/firewalls/allow-health-checks",
+          "type": "compute.googleapis.com/Firewall",
+          "name": "allow-health-checks",
+          "location": "global",
+          "attributes": {"name": "allow-health-checks", "network": "app-vpc", "direction": "INGRESS", "source_ranges": ["35.191.0.0/16"], "allow": [{"protocol": "tcp", "ports": ["443"]}]},
+          "dependency_ids": ["projects/acme-clickops-prod/global/networks/app-vpc"]
+        },
+        {
+          "id": "projects/acme-clickops-prod/topics/order-events",
+          "type": "pubsub.googleapis.com/Topic",
+          "name": "order-events",
+          "location": "global",
+          "attributes": {"name": "order-events", "message_retention_duration": "86600s"}
+        },
+        {
+          "id": "projects/acme-clickops-prod/subscriptions/order-worker",
+          "type": "pubsub.googleapis.com/Subscription",
+          "name": "order-worker",
+          "location": "global",
+          "attributes": {"name": "order-worker", "topic": "order-events", "ack_deadline_seconds": 30},
+          "dependency_ids": ["projects/acme-clickops-prod/topics/order-events"]
+        },
+        {
+          "id": "projects/acme-clickops-prod/locations/europe-west1/repositories/apps",
+          "type": "artifactregistry.googleapis.com/Repository",
+          "name": "apps",
+          "location": "europe-west1",
+          "attributes": {"name": "apps", "location": "europe-west1", "format": "DOCKER", "description": "Application images"}
+        },
+        {
+          "id": "projects/acme-clickops-prod/secrets/database-password",
+          "type": "secretmanager.googleapis.com/Secret",
+          "name": "database-password",
+          "location": "global",
+          "attributes": {"name": "database-password", "replication": {"auto": {}}, "labels": {"owner": "platform"}}
+        },
+        {
+          "id": "projects/acme-clickops-prod/instances/orders-db",
+          "type": "sqladmin.googleapis.com/Instance",
+          "name": "orders-db",
+          "location": "europe-west1",
+          "attributes": {"name": "orders-db", "region": "europe-west1", "database_version": "POSTGRES_16", "tier": "db-custom-2-7680"}
+        },
+        {
+          "id": "projects/acme-clickops-prod/managedZones/acme-internal",
+          "type": "dns.googleapis.com/ManagedZone",
+          "name": "acme-internal",
+          "location": "global",
+          "attributes": {"name": "acme-internal", "dns_name": "internal.acme.example.", "visibility": "private"}
+        },
+        {
+          "id": "projects/acme-clickops-prod/serviceAccounts/runtime@acme-clickops-prod.iam.gserviceaccount.com",
+          "type": "iam.googleapis.com/ServiceAccount",
+          "name": "runtime",
+          "location": "global",
+          "attributes": {"name": "runtime", "account_id": "runtime", "email": "runtime@acme-clickops-prod.iam.gserviceaccount.com", "display_name": "Runtime service account"}
+        }
+      ]
+    }
+  ]
+}
