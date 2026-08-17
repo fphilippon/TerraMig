@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">TerraMig mark</title>
+  <desc id="desc">A purple square containing a stylised terrain path and migration arrow.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6f3fb0"/>
+      <stop offset="1" stop-color="#9b62cf"/>
+    </linearGradient>
+    <linearGradient id="path" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#fff"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
+  <path d="M18 88c18-1 23-17 37-17 14 0 17 15 31 14 10-1 16-8 24-18" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="6" stroke-linecap="round"/>
+  <path d="M18 100c18-1 28-15 43-15 13 0 18 10 29 9 8-1 15-6 20-13" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="4" stroke-linecap="round"/>
+  <path d="M23 54h46c15 0 28-8 35-23" fill="none" stroke="url(#path)" stroke-width="9" stroke-linecap="round"/>
+  <path d="m91 31 14 0-6 13" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="23" cy="54" r="7" fill="#fff"/>
+</svg>

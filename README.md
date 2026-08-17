@@ -1,11 +1,55 @@
-# TerraMig
+<p align="center">
+  <img src="docs/assets/terramig-mark.svg" alt="TerraMig" width="96" height="96">
+</p>
+
+<h1 align="center">TerraMig</h1>
+
+<p align="center">
+  <strong>Move existing Google Cloud infrastructure into governed Terraform.</strong><br>
+  Discover what is deployed, choose the right module or provider resource, verify the plan, and deliver it safely to HCP Terraform.
+</p>
+
+<p align="center">
+  <a href="#quick-start">Run locally</a> ·
+  <a href="#the-infrastructure-adoption-workflow">See the workflow</a> ·
+  <a href="#production-integrations">Configure production integrations</a> ·
+  <a href="#safety-model-at-a-glance">Review the safety model</a>
+</p>
+
+> [!IMPORTANT]
+> TerraMig is an adoption and review control plane. It does not create or change GCP resources during discovery, matching, generation, or local verification, and it never auto-applies the final HCP Terraform plan.
+
+## See the workflow at a glance
+
+These snapshots mirror the current UI and make the seven-stage journey easier to understand:
+
+<table>
+  <tr>
+    <td width="33%"><strong>1–2 · Discover</strong><br><img src="docs/screenshots/discover.svg" alt="TerraMig Discover screen"></td>
+    <td width="33%"><strong>3 · Match</strong><br><img src="docs/screenshots/match.svg" alt="TerraMig Match screen"></td>
+    <td width="33%"><strong>5 · Verify</strong><br><img src="docs/screenshots/verify.svg" alt="TerraMig Verify screen"></td>
+  </tr>
+</table>
+
+The screenshots are intentionally compact: the important idea is the hand-off
+between deterministic discovery, operator-controlled representation choices, and
+the import-only Terraform gate.
+
+### The 60-second mental model
+
+| Stage | TerraMig does | You decide |
+| --- | --- | --- |
+| **Discover** | Reads Cloud Asset Inventory and resolves dependencies | Which deployed resources belong in this adoption |
+| **Match** | Finds the latest compatible private or public module | Module, direct provider resource, or exclusion |
+| **Generate** | Uses Bob or Copilot for bounded Terraform composition | Whether the proposal is acceptable |
+| **Verify** | Runs `terraform validate` and an import-only local plan | Whether a documented drift exception is acceptable |
+| **Deliver** | Writes stable Terraform files to a Git branch and optional PR | What enters the target repository |
+| **Import** | Protects the HCP workspace and queues a saved plan | When to review and manually apply in HCP Terraform |
 
 TerraMig helps teams bring existing Google Cloud infrastructure under Terraform
-management.
-
-It discovers resources that were created manually or by another tool, finds how
-they depend on each other, generates reviewable Terraform, delivers it through
-Git, and prepares a safe import into HCP Terraform.
+management. It discovers resources that were created manually or by another tool,
+finds how they depend on each other, generates reviewable Terraform, delivers it
+through Git, and prepares a safe import into HCP Terraform.
 
 TerraMig prefers approved modules from the HCP Terraform Private Registry. When
 no compatible module exists, it can use the corresponding Google provider
