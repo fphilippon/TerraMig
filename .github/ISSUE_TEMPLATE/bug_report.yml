@@ -1,0 +1,66 @@
+name: Bug report
+description: Report a reproducible problem in TerraMig
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a problem. Please remove credentials and customer-specific identifiers before submitting.
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the observed behavior and why it is a problem.
+      placeholder: Tell us what you saw.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: Provide the smallest safe set of steps, configuration, or fixture data that reproduces the issue.
+      placeholder: |
+        1. Start the local stack...
+        2. Create a mocked workflow...
+        3. Select...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect TerraMig to do?
+    validations:
+      required: true
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      options:
+        - Local development
+        - Mocked workflow
+        - Container stack
+        - Real GCP or HCP Terraform integration
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: TerraMig version or commit
+      description: Provide a release, branch, or commit without including private repository details.
+      placeholder: e.g. v0.1.0 or 0123abc
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Paste a redacted excerpt. Never include tokens, credentials, or customer identifiers.
+      render: shell
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safe to share
+      options:
+        - label: I removed credentials, tokens, customer names, cloud project IDs, workspace IDs, private URLs, and other sensitive values.
+          required: true
