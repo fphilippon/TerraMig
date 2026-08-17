@@ -92,25 +92,34 @@ RUN python3 -m pip download --no-cache-dir --only-binary=:all: --no-deps \
       --dest /tmp/gcloud-patches \
       "msgpack==1.2.1" "setuptools>=78.1.1"
 
-RUN CLOUDSDK_SITE_PACKAGES="$(find /usr/lib/google-cloud-sdk/platform/bundledpythonunix/lib -type d -name site-packages -print -quit)" \
-    python3 - <<'PY'
-import os
+RUN python3 - <<'PY'
 import shutil
 import zipfile
 from pathlib import Path
 
-site = Path(os.environ["CLOUDSDK_SITE_PACKAGES"])
-if not site.is_dir():
-    raise SystemExit(f"Google Cloud SDK site-packages directory not found: {site}")
+sites = sorted(
+    Path("/usr/lib/google-cloud-sdk/platform/bundledpythonunix/lib").glob(
+        "python*/site-packages"
+    )
+)
+if not sites:
+    raise SystemExit("Google Cloud SDK site-packages directory not found")
 
-for name in ("msgpack", "setuptools", "pkg_resources"):
-    for path in site.glob(f"{name}*"):
-        if path.is_dir():
-            shutil.rmtree(path)
+for site in sites:
+    for name in ("msgpack", "setuptools", "pkg_resources"):
+        for path in site.glob(f"{name}*"):
+            if path.is_dir():
+                shutil.rmtree(path)
 
 for wheel in Path("/tmp/gcloud-patches").glob("*.whl"):
-    with zipfile.ZipFile(wheel) as archive:
-        archive.extractall(site)
+    for site in sites:
+        with zipfile.ZipFile(wheel) as archive:
+            archive.extractall(site)
+
+for site in sites:
+    for old in ("msgpack-1.1.2.dist-info", "setuptools-70.3.0.dist-info"):
+        if (site / old).exists():
+            raise SystemExit(f"Unpatched Google Cloud SDK dependency remains: {site / old}")
 
 shutil.rmtree("/tmp/gcloud-patches")
 PY
