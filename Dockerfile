@@ -68,6 +68,11 @@ WORKDIR /app
 
 COPY requirements.txt ./
 RUN python3 -m pip install --no-cache-dir --only-binary=:all: --requirement requirements.txt
+COPY scripts/patch_gcloud_dependencies.py /tmp/patch_gcloud_dependencies.py
+
+# Keep the base image's packaging tooling outside known vulnerable versions.
+RUN python3 -m pip install --no-cache-dir --only-binary=:all: \
+      --upgrade "setuptools>=78.1.1"
 
 # Install gcloud from Google's signed Debian repository.
 RUN apt-get update \
@@ -80,7 +85,11 @@ RUN apt-get update \
       > /etc/apt/sources.list.d/google-cloud-sdk.list \
     && apt-get update \
     && CLOUDSDK_SKIP_PY_COMPILATION=1 apt-get install --yes --no-install-recommends google-cloud-cli \
-    && rm -rf /var/lib/apt/lists/*
+    && python3 -m pip download --no-cache-dir --only-binary=:all: --no-deps \
+      --dest /tmp/gcloud-patches \
+      "msgpack==1.2.1" "setuptools>=78.1.1" \
+    && python3 /tmp/patch_gcloud_dependencies.py \
+    && rm -rf /tmp/gcloud-patches /tmp/patch_gcloud_dependencies.py /var/lib/apt/lists/*
 
 ENV HOME=/app
 

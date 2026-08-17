@@ -14,6 +14,90 @@ vulnerabilities:
       - "usr/lib/google-cloud-sdk/platform/bundledpythonunix/lib/python3.14/site-packages/cryptography-46.0.7.dist-info/METADATA"
     statement: No patched Google Cloud SDK release is available.
     expired_at: 2026-10-29
+  # The Google Cloud SDK 579.0.0 amd64 package also bundles cryptography 46.0.7,
+  # which is below the patched versions for these CVEs. Keep the exception
+  # path-scoped and short-lived so a patched SDK release reopens the gate.
+  - id: CVE-2026-69247
+    paths:
+      - "usr/lib/google-cloud-sdk/platform/bundledpythonunix/lib/python3.14/site-packages/cryptography-46.0.7.dist-info/METADATA"
+    statement: No patched Google Cloud SDK release is available at scan time.
+    expired_at: 2026-10-29
+  - id: CVE-2026-69249
+    paths:
+      - "usr/lib/google-cloud-sdk/platform/bundledpythonunix/lib/python3.14/site-packages/cryptography-46.0.7.dist-info/METADATA"
+    statement: No patched Google Cloud SDK release is available at scan time.
+    expired_at: 2026-10-29
+  # The final image patches these bundled packages to msgpack 1.2.1 and
+  # setuptools 84.0.0. Match only the stale vulnerable package versions.
+  - id: GHSA-6v7p-g79w-8964
+    purls:
+      - "pkg:pypi/msgpack@1.1.2"
+    statement: Google Cloud SDK vendor package is patched during image build; expire for revalidation.
+    expired_at: 2026-10-29
+  - id: CVE-2025-47273
+    purls:
+      - "pkg:pypi/setuptools@70.3.0"
+    statement: Google Cloud SDK vendor package is patched during image build; expire for revalidation.
+    expired_at: 2026-10-29
+  # Terraform, Terraform MCP Server, and the Google Cloud SDK checksum helper
+  # embed Go runtimes whose vendor releases predate the current fixed versions.
+  # Keep each exception path-scoped and expire them for mandatory re-review.
+  - id: CVE-2026-33818
+    paths:
+      - "usr/lib/google-cloud-sdk/bin/gcloud-crc32c"
+      - "usr/local/bin/terraform"
+      - "usr/local/bin/terraform-mcp-server"
+    statement: No patched vendor binary release is available at scan time.
+    expired_at: 2026-10-29
+  - id: CVE-2026-39821
+    paths:
+      - "usr/lib/google-cloud-sdk/bin/gcloud-crc32c"
+      - "usr/local/bin/terraform"
+      - "usr/local/bin/terraform-mcp-server"
+    statement: No patched vendor binary release is available at scan time.
+    expired_at: 2026-10-29
+  - id: CVE-2026-46600
+    paths:
+      - "usr/lib/google-cloud-sdk/bin/gcloud-crc32c"
+      - "usr/local/bin/terraform"
+      - "usr/local/bin/terraform-mcp-server"
+    statement: No patched vendor binary release is available at scan time.
+    expired_at: 2026-10-29
+  - id: CVE-2026-56853
+    paths:
+      - "usr/lib/google-cloud-sdk/bin/gcloud-crc32c"
+      - "usr/local/bin/terraform"
+      - "usr/local/bin/terraform-mcp-server"
+    statement: No patched vendor binary release is available at scan time.
+    expired_at: 2026-10-29
+  - id: CVE-2026-56858
+    paths:
+      - "usr/lib/google-cloud-sdk/bin/gcloud-crc32c"
+      - "usr/local/bin/terraform"
+      - "usr/local/bin/terraform-mcp-server"
+    statement: No patched vendor binary release is available at scan time.
+    expired_at: 2026-10-29
+  - id: CVE-2026-56859
+    paths:
+      - "usr/lib/google-cloud-sdk/bin/gcloud-crc32c"
+      - "usr/local/bin/terraform"
+      - "usr/local/bin/terraform-mcp-server"
+    statement: No patched vendor binary release is available at scan time.
+    expired_at: 2026-10-29
+  - id: CVE-2026-56860
+    paths:
+      - "usr/lib/google-cloud-sdk/bin/gcloud-crc32c"
+      - "usr/local/bin/terraform"
+      - "usr/local/bin/terraform-mcp-server"
+    statement: No patched vendor binary release is available at scan time.
+    expired_at: 2026-10-29
+  - id: CVE-2026-56862
+    paths:
+      - "usr/lib/google-cloud-sdk/bin/gcloud-crc32c"
+      - "usr/local/bin/terraform"
+      - "usr/local/bin/terraform-mcp-server"
+    statement: No patched vendor binary release is available at scan time.
+    expired_at: 2026-10-29
   # Terraform 1.15.8 and Terraform MCP Server 1.1.0 are the latest stable
   # vendor releases. Both still embed gRPC-Go below the patched 1.82.1 release.
   - id: GHSA-hrxh-6v49-42gf

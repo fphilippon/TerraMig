@@ -58,7 +58,10 @@ class SupplyChainTests(unittest.TestCase):
         entries = ignore.split("  - id: ")[1:]
         self.assertTrue(entries)
         for entry in entries:
-            self.assertIn("paths:", entry)
+            self.assertTrue(
+                "paths:" in entry or "purls:" in entry,
+                f"Trivy exception is not scoped: {entry.splitlines()[0]}",
+            )
             self.assertIn("statement:", entry)
             self.assertIn("expired_at: 2026-10-29", entry)
         self.assertIn("usr/local/bin/terraform", ignore)
