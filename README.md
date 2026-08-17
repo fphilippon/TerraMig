@@ -2,7 +2,7 @@
   <img src="docs/assets/terramig-mark.svg" alt="TerraMig" width="96" height="96">
 </p>
 
-<h1 align="center">TerraMig</h1>
+# TerraMig
 
 <p align="center">
   <strong>Move existing Google Cloud infrastructure into governed Terraform.</strong><br>
@@ -21,19 +21,22 @@
 
 ## See the workflow at a glance
 
-These snapshots mirror the current UI and make the seven-stage journey easier to understand:
+These anonymized documentation captures are generated from the current frontend
+layout and styling. They use neutral fixture data and contain no live project,
+workspace, repository, or resource identifiers:
 
 <table>
   <tr>
-    <td width="33%"><strong>1–2 · Discover</strong><br><img src="docs/screenshots/discover.svg" alt="TerraMig Discover screen"></td>
-    <td width="33%"><strong>3 · Match</strong><br><img src="docs/screenshots/match.svg" alt="TerraMig Match screen"></td>
-    <td width="33%"><strong>5 · Verify</strong><br><img src="docs/screenshots/verify.svg" alt="TerraMig Verify screen"></td>
+    <td width="33%"><strong>1–2 · Discover</strong><br><img src="docs/screenshots/discover.png" alt="Anonymized TerraMig Discover screen"></td>
+    <td width="33%"><strong>3 · Match</strong><br><img src="docs/screenshots/match.png" alt="Anonymized TerraMig Match screen"></td>
+    <td width="33%"><strong>5 · Verify</strong><br><img src="docs/screenshots/verify.png" alt="Anonymized TerraMig Verify screen"></td>
   </tr>
 </table>
 
-The screenshots are intentionally compact: the important idea is the hand-off
-between deterministic discovery, operator-controlled representation choices, and
-the import-only Terraform gate.
+The captures are intentionally compact: the important idea is the hand-off
+between deterministic discovery, operator-controlled representation choices,
+and the import-only Terraform gate. Rebuild their SVG sources with
+`python3 scripts/render_readme_screenshots.py`.
 
 ### The 60-second mental model
 
