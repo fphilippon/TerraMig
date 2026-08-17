@@ -86,6 +86,35 @@ RUN apt-get update \
     && CLOUDSDK_SKIP_PY_COMPILATION=1 apt-get install --yes --no-install-recommends google-cloud-cli \
     && rm -rf /var/lib/apt/lists/*
 
+# Keep the SDK's bundled Python dependencies patched independently from the
+# application interpreter. Google Cloud CLI ships its own site-packages tree.
+RUN python3 -m pip download --no-cache-dir --only-binary=:all: --no-deps \
+      --dest /tmp/gcloud-patches \
+      "msgpack==1.2.1" "setuptools>=78.1.1"
+
+RUN CLOUDSDK_SITE_PACKAGES="$(find /usr/lib/google-cloud-sdk/platform/bundledpythonunix/lib -type d -name site-packages -print -quit)" \
+    python3 - <<'PY'
+import os
+import shutil
+import zipfile
+from pathlib import Path
+
+site = Path(os.environ["CLOUDSDK_SITE_PACKAGES"])
+if not site.is_dir():
+    raise SystemExit(f"Google Cloud SDK site-packages directory not found: {site}")
+
+for name in ("msgpack", "setuptools", "pkg_resources"):
+    for path in site.glob(f"{name}*"):
+        if path.is_dir():
+            shutil.rmtree(path)
+
+for wheel in Path("/tmp/gcloud-patches").glob("*.whl"):
+    with zipfile.ZipFile(wheel) as archive:
+        archive.extractall(site)
+
+shutil.rmtree("/tmp/gcloud-patches")
+PY
+
 ENV HOME=/app
 
 # Both AI CLIs are Node applications. Copy the Node runtime and package payloads

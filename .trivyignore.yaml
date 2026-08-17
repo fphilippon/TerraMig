@@ -27,27 +27,6 @@ vulnerabilities:
       - "usr/lib/google-cloud-sdk/platform/bundledpythonunix/lib/python3.14/site-packages/cryptography-46.0.7.dist-info/METADATA"
     statement: No patched Google Cloud SDK release is available at scan time.
     expired_at: 2026-10-29
-  # The current Google Cloud SDK bundle still ships msgpack 1.1.2. Keep this
-  # exception limited to that vendor path until the SDK ships msgpack 1.2.1+.
-  - id: GHSA-6v7p-g79w-8964
-    paths:
-      - "usr/lib/google-cloud-sdk/platform/bundledpythonunix/lib/python3.14/site-packages/msgpack-1.1.2.dist-info/METADATA"
-      - "**/msgpack-1.1.2.dist-info/METADATA"
-    purls:
-      - "pkg:pypi/msgpack@1.1.2"
-    statement: No patched Google Cloud SDK release is available at scan time.
-    expired_at: 2026-10-29
-  # Google Cloud CLI currently carries an older setuptools metadata package in
-  # its bundled Python runtime. The application runtime is upgraded separately
-  # above; keep this exception scoped to the SDK's vendored copy.
-  - id: CVE-2025-47273
-    paths:
-      - "usr/lib/google-cloud-sdk/platform/bundledpythonunix/lib/python3.14/site-packages/setuptools-70.3.0.dist-info/METADATA"
-      - "**/setuptools-70.3.0.dist-info/METADATA"
-    purls:
-      - "pkg:pypi/setuptools@70.3.0"
-    statement: No patched Google Cloud SDK release is available at scan time.
-    expired_at: 2026-10-29
   # Terraform, Terraform MCP Server, and the Google Cloud SDK checksum helper
   # embed Go runtimes whose vendor releases predate the current fixed versions.
   # Keep each exception path-scoped and expire them for mandatory re-review.

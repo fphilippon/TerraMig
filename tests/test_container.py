@@ -57,6 +57,8 @@ class ContainerImageTests(unittest.TestCase):
         self.assertIn("psycopg[binary]==3.3.4", requirements)
         self.assertIn("--requirement requirements.txt", self.dockerfile)
         self.assertIn('"setuptools>=78.1.1"', self.dockerfile)
+        self.assertIn('"msgpack==1.2.1"', self.dockerfile)
+        self.assertIn("gcloud-patches", self.dockerfile)
         self.assertIn("postgres:17.10-bookworm", compose)
         self.assertIn("TERRAMIG_REQUIRE_POSTGRES", compose)
         self.assertRegex(
