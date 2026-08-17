@@ -1,0 +1,41 @@
+name: Feature request
+description: Propose an improvement to TerraMig
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Clear problem statements help us evaluate and prioritize proposals.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: What user, operator, or platform problem would this feature address?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the behavior or workflow you would like to see.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What workarounds or alternative designs have you considered?
+  - type: textarea
+    id: impact
+    attributes:
+      label: Operational and security impact
+      description: Explain implications for cloud access, Terraform state, Git delivery, AI assurance, performance, or supportability.
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safe to share
+      options:
+        - label: I have not included credentials, customer-specific information, or other confidential data.
+          required: true
