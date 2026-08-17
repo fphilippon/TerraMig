@@ -69,6 +69,10 @@ WORKDIR /app
 COPY requirements.txt ./
 RUN python3 -m pip install --no-cache-dir --only-binary=:all: --requirement requirements.txt
 
+# Keep the base image's packaging tooling outside known vulnerable versions.
+RUN python3 -m pip install --no-cache-dir --only-binary=:all: \
+      --upgrade "setuptools>=78.1.1"
+
 # Install gcloud from Google's signed Debian repository.
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends ca-certificates curl git gnupg openssh-client \

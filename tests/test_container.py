@@ -56,6 +56,7 @@ class ContainerImageTests(unittest.TestCase):
         compose = (ROOT / "compose.yaml").read_text()
         self.assertIn("psycopg[binary]==3.3.4", requirements)
         self.assertIn("--requirement requirements.txt", self.dockerfile)
+        self.assertIn('"setuptools>=78.1.1"', self.dockerfile)
         self.assertIn("postgres:17.10-bookworm", compose)
         self.assertIn("TERRAMIG_REQUIRE_POSTGRES", compose)
         self.assertRegex(
