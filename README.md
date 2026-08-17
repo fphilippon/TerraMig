@@ -12,7 +12,7 @@
 <p align="center">
   <a href="https://github.com/fphilippon/TerraMig/actions/workflows/ci.yml"><img src="https://github.com/fphilippon/TerraMig/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI status"></a>
   <a href="https://github.com/fphilippon/TerraMig/actions/workflows/codeql.yml"><img src="https://github.com/fphilippon/TerraMig/actions/workflows/codeql.yml/badge.svg?branch=main" alt="CodeQL status"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-IBM%20Public%20License%201.0-844fba.svg" alt="IBM Public License 1.0"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-844fba.svg" alt="Apache License 2.0"></a>
 </p>
 
 <p align="center">
@@ -787,7 +787,7 @@ if a patched vendor release is not adopted.
 ## License
 
 TerraMig source code is available under the
-[IBM Public License Version 1.0](LICENSE) (`IPL-1.0`).
+[Apache License 2.0](LICENSE) (`Apache-2.0`).
 
 Third-party tools installed by the container image remain subject to their own
 licenses and terms. The TerraMig license does not grant rights to those tools.
