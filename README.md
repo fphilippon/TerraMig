@@ -607,7 +607,9 @@ export TERRAMIG_REQUIRE_SIGNED_CATALOG=true
 The scheduled `Private module catalog` GitHub workflow builds and publishes this signed catalog
 as an artifact. Configure the repository secret `TERRAMIG_HCP_TOKEN`, secret
 `TERRAMIG_CATALOG_SIGNING_KEY`, variable `TERRAMIG_HCP_ORGANIZATION`, and optional variable
-`TERRAMIG_HCP_HOSTNAME`.
+`TERRAMIG_HCP_HOSTNAME`. Scheduled runs skip with a warning when the required configuration is
+not present; a manually dispatched run fails fast with the missing setting names so a catalog is
+never mistaken for a successful empty scan.
 
 Both `google` and customer-defined `gcp` provider source segments are supported, including:
 

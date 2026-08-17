@@ -25,24 +25,38 @@ jobs:
         with:
           terraform_version: "1.15.8"
           terraform_wrapper: false
+      - name: Check catalog configuration
+        id: configuration
+        run: |
+          missing=""
+          [ -n "$TERRAMIG_HCP_TOKEN" ] || missing="$missing TERRAMIG_HCP_TOKEN"
+          [ -n "$TERRAMIG_CATALOG_SIGNING_KEY" ] || missing="$missing TERRAMIG_CATALOG_SIGNING_KEY"
+          [ -n "$TERRAMIG_HCP_ORGANIZATION" ] || missing="$missing TERRAMIG_HCP_ORGANIZATION"
+          if [ -z "$missing" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "::error::Missing catalog configuration:$missing. Configure the repository secrets/variable before running this workflow manually."
+            exit 1
+          fi
+          echo "::warning::Skipping scheduled catalog build; missing configuration:$missing. Configure the repository secrets/variable to publish the catalog."
+          echo "configured=false" >> "$GITHUB_OUTPUT"
       - name: Build signed catalog
         id: build_catalog
-        continue-on-error: true
+        if: steps.configuration.outputs.configured == 'true'
         run: |
-          test -n "$TERRAMIG_HCP_TOKEN"
-          test -n "$TERRAMIG_CATALOG_SIGNING_KEY"
-          test -n "$TERRAMIG_HCP_ORGANIZATION"
           hostname="${TERRAMIG_HCP_HOSTNAME:-app.terraform.io}"
           PYTHONPATH=src python scripts/build_module_catalog.py \
             --hostname "$hostname" \
             --organization "$TERRAMIG_HCP_ORGANIZATION" \
             --output dist/private-modules.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        if: always()
+        if: steps.configuration.outputs.configured == 'true'
         with:
           name: terramig-private-module-catalog
           path: dist/private-modules.json
           if-no-files-found: error
-      - name: Enforce successful catalog build
-        if: steps.build_catalog.outcome == 'failure'
-        run: exit 1
+      - name: Report scheduled catalog skip
+        if: steps.configuration.outputs.configured != 'true' && github.event_name != 'workflow_dispatch'
+        run: echo "Catalog build skipped because HCP registry configuration is not present."

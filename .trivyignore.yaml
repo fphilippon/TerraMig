@@ -14,6 +14,19 @@ vulnerabilities:
       - "usr/lib/google-cloud-sdk/platform/bundledpythonunix/lib/python3.14/site-packages/cryptography-46.0.7.dist-info/METADATA"
     statement: No patched Google Cloud SDK release is available.
     expired_at: 2026-10-29
+  # The Google Cloud SDK 579.0.0 amd64 package also bundles cryptography 46.0.7,
+  # which is below the patched versions for these CVEs. Keep the exception
+  # path-scoped and short-lived so a patched SDK release reopens the gate.
+  - id: CVE-2026-69247
+    paths:
+      - "usr/lib/google-cloud-sdk/platform/bundledpythonunix/lib/python3.14/site-packages/cryptography-46.0.7.dist-info/METADATA"
+    statement: No patched Google Cloud SDK release is available at scan time.
+    expired_at: 2026-10-29
+  - id: CVE-2026-69249
+    paths:
+      - "usr/lib/google-cloud-sdk/platform/bundledpythonunix/lib/python3.14/site-packages/cryptography-46.0.7.dist-info/METADATA"
+    statement: No patched Google Cloud SDK release is available at scan time.
+    expired_at: 2026-10-29
   # Terraform 1.15.8 and Terraform MCP Server 1.1.0 are the latest stable
   # vendor releases. Both still embed gRPC-Go below the patched 1.82.1 release.
   - id: GHSA-hrxh-6v49-42gf

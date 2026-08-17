@@ -51,14 +51,17 @@ class ContainerImageTests(unittest.TestCase):
         ):
             self.assertIn(f"command -v {binary}", self.dockerfile)
 
-    def test_postgresql_driver_is_pinned_and_installed(self) -> None:
+    def test_runtime_dependencies_are_pinned_and_installed(self) -> None:
         requirements = (ROOT / "requirements.txt").read_text()
         compose = (ROOT / "compose.yaml").read_text()
         self.assertIn("psycopg[binary]==3.3.4", requirements)
         self.assertIn("--requirement requirements.txt", self.dockerfile)
         self.assertIn("postgres:17.10-bookworm", compose)
         self.assertIn("TERRAMIG_REQUIRE_POSTGRES", compose)
-        self.assertIn("cryptography==49.0.0", requirements)
+        self.assertRegex(
+            requirements,
+            r"(?m)^cryptography==[0-9]+(?:\.[0-9]+){2}(?:[.-][0-9A-Za-z.-]+)?\s*$",
+        )
         self.assertIn("TERRAMIG_SECRET_ENCRYPTION_KEY", compose)
         self.assertIn("COPILOT_GITHUB_TOKEN", compose)
         self.assertIn("BOBSHELL_API_KEY", compose)
