@@ -59,6 +59,7 @@ class ContainerImageTests(unittest.TestCase):
         self.assertIn('"setuptools>=78.1.1"', self.dockerfile)
         self.assertIn('"msgpack==1.2.1"', self.dockerfile)
         self.assertIn("gcloud-patches", self.dockerfile)
+        self.assertIn("patch_gcloud_dependencies.py", self.dockerfile)
         self.assertIn("postgres:17.10-bookworm", compose)
         self.assertIn("TERRAMIG_REQUIRE_POSTGRES", compose)
         self.assertRegex(

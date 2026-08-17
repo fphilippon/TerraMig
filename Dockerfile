@@ -68,6 +68,7 @@ WORKDIR /app
 
 COPY requirements.txt ./
 RUN python3 -m pip install --no-cache-dir --only-binary=:all: --requirement requirements.txt
+COPY scripts/patch_gcloud_dependencies.py /tmp/patch_gcloud_dependencies.py
 
 # Keep the base image's packaging tooling outside known vulnerable versions.
 RUN python3 -m pip install --no-cache-dir --only-binary=:all: \
@@ -84,45 +85,11 @@ RUN apt-get update \
       > /etc/apt/sources.list.d/google-cloud-sdk.list \
     && apt-get update \
     && CLOUDSDK_SKIP_PY_COMPILATION=1 apt-get install --yes --no-install-recommends google-cloud-cli \
-    && rm -rf /var/lib/apt/lists/*
-
-# Keep the SDK's bundled Python dependencies patched independently from the
-# application interpreter. Google Cloud CLI ships its own site-packages tree.
-RUN python3 -m pip download --no-cache-dir --only-binary=:all: --no-deps \
+    && python3 -m pip download --no-cache-dir --only-binary=:all: --no-deps \
       --dest /tmp/gcloud-patches \
-      "msgpack==1.2.1" "setuptools>=78.1.1"
-
-RUN python3 - <<'PY'
-import shutil
-import zipfile
-from pathlib import Path
-
-sites = sorted(
-    Path("/usr/lib/google-cloud-sdk/platform/bundledpythonunix/lib").glob(
-        "python*/site-packages"
-    )
-)
-if not sites:
-    raise SystemExit("Google Cloud SDK site-packages directory not found")
-
-for site in sites:
-    for name in ("msgpack", "setuptools", "pkg_resources"):
-        for path in site.glob(f"{name}*"):
-            if path.is_dir():
-                shutil.rmtree(path)
-
-for wheel in Path("/tmp/gcloud-patches").glob("*.whl"):
-    for site in sites:
-        with zipfile.ZipFile(wheel) as archive:
-            archive.extractall(site)
-
-for site in sites:
-    for old in ("msgpack-1.1.2.dist-info", "setuptools-70.3.0.dist-info"):
-        if (site / old).exists():
-            raise SystemExit(f"Unpatched Google Cloud SDK dependency remains: {site / old}")
-
-shutil.rmtree("/tmp/gcloud-patches")
-PY
+      "msgpack==1.2.1" "setuptools>=78.1.1" \
+    && python3 /tmp/patch_gcloud_dependencies.py \
+    && rm -rf /tmp/gcloud-patches /tmp/patch_gcloud_dependencies.py /var/lib/apt/lists/*
 
 ENV HOME=/app
 
