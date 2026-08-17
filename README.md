@@ -10,6 +10,12 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/fphilippon/TerraMig/actions/workflows/ci.yml"><img src="https://github.com/fphilippon/TerraMig/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI status"></a>
+  <a href="https://github.com/fphilippon/TerraMig/actions/workflows/codeql.yml"><img src="https://github.com/fphilippon/TerraMig/actions/workflows/codeql.yml/badge.svg?branch=main" alt="CodeQL status"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-IBM%20Public%20License%201.0-844fba.svg" alt="IBM Public License 1.0"></a>
+</p>
+
+<p align="center">
   <a href="#quick-start">Run locally</a> ·
   <a href="#the-infrastructure-adoption-workflow">See the workflow</a> ·
   <a href="#production-integrations">Configure production integrations</a> ·
@@ -21,22 +27,19 @@
 
 ## See the workflow at a glance
 
-These anonymized documentation captures are generated from the current frontend
-layout and styling. They use neutral fixture data and contain no live project,
-workspace, repository, or resource identifiers:
+A guided view of the seven-stage infrastructure-adoption workflow:
 
 <table>
   <tr>
-    <td width="33%"><strong>1–2 · Discover</strong><br><img src="docs/screenshots/discover.png" alt="Anonymized TerraMig Discover screen"></td>
-    <td width="33%"><strong>3 · Match</strong><br><img src="docs/screenshots/match.png" alt="Anonymized TerraMig Match screen"></td>
-    <td width="33%"><strong>5 · Verify</strong><br><img src="docs/screenshots/verify.png" alt="Anonymized TerraMig Verify screen"></td>
+    <td width="33%"><strong>1–2 · Discover</strong><br><img src="docs/screenshots/discover.png" alt="TerraMig Discover screen"></td>
+    <td width="33%"><strong>3 · Match</strong><br><img src="docs/screenshots/match.png" alt="TerraMig Match screen"></td>
+    <td width="33%"><strong>5 · Verify</strong><br><img src="docs/screenshots/verify.png" alt="TerraMig Verify screen"></td>
   </tr>
 </table>
 
-The captures are intentionally compact: the important idea is the hand-off
-between deterministic discovery, operator-controlled representation choices,
-and the import-only Terraform gate. Rebuild their SVG sources with
-`python3 scripts/render_readme_screenshots.py`.
+The workflow connects deterministic discovery, operator-controlled representation
+choices, AI-assisted composition, local Terraform verification, Git delivery,
+and a protected HCP Terraform import.
 
 ### The 60-second mental model
 
