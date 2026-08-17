@@ -14,7 +14,16 @@ PATCH_DIR = Path("/tmp/gcloud-patches")
 def main() -> None:
     sites = sorted(SDK_LIB.glob("python*/site-packages"))
     if not sites:
-        raise SystemExit("Google Cloud SDK site-packages directory not found")
+        # Recent arm64 Google Cloud CLI packages use the system Python runtime
+        # and ship the SDK as source under ``lib/third_party`` instead of
+        # embedding a bundled interpreter. There is no wheel-installable
+        # distribution to patch in that layout; keep the build usable while
+        # retaining the strict patch-and-verify behavior for bundled layouts.
+        print(
+            "Google Cloud SDK has no bundled Python site-packages; "
+            "skipping bundled dependency patch"
+        )
+        return
 
     for site in sites:
         for name in ("msgpack", "setuptools", "pkg_resources"):
