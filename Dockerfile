@@ -2,13 +2,13 @@
 
 ARG NODE_IMAGE=node:22-bookworm-slim
 ARG RUNTIME_IMAGE=python:3.13-slim-bookworm
-ARG TERRAFORM_MCP_IMAGE=hashicorp/terraform-mcp-server:1.1.0@sha256:312d63756b5474df384b1844af55b58ca48cbe0996871e1d6c4239bfcd6fcd29
+ARG TERRAFORM_MCP_IMAGE=hashicorp/terraform-mcp-server:1.3.0@sha256:423a6b8e2ee06affcf090892f40c86469caba45fd2448ffa8ca5d717a174f7d5
 
 FROM ${TERRAFORM_MCP_IMAGE} AS terraform-mcp-tools
 
 FROM ${NODE_IMAGE} AS ai-cli-tools
 
-ARG COPILOT_VERSION=1.0.71
+ARG COPILOT_VERSION=1.0.92
 ARG BOB_VERSION=1.0.6
 ARG BOB_SHA256=6ec51abec4251d41ec45709030988b90baa659f535fc8d14dd003023dd163a5b
 
@@ -34,7 +34,7 @@ RUN curl --fail --silent --show-error --location \
 FROM ${RUNTIME_IMAGE} AS hashicorp-cli-tools
 
 ARG TARGETARCH
-ARG TERRAFORM_VERSION=1.15.8
+ARG TERRAFORM_VERSION=1.16.5
 
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends ca-certificates curl unzip \

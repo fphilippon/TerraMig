@@ -332,10 +332,10 @@ The tool versions are pinned by default and can be overridden explicitly:
 
 ```bash
 docker build \
-  --build-arg COPILOT_VERSION=1.0.71 \
+  --build-arg COPILOT_VERSION=1.0.92 \
   --build-arg BOB_VERSION=1.0.6 \
-  --build-arg TERRAFORM_VERSION=1.15.8 \
-  --build-arg TERRAFORM_MCP_IMAGE=hashicorp/terraform-mcp-server:1.1.0@sha256:312d63756b5474df384b1844af55b58ca48cbe0996871e1d6c4239bfcd6fcd29 \
+  --build-arg TERRAFORM_VERSION=1.16.5 \
+  --build-arg TERRAFORM_MCP_IMAGE=hashicorp/terraform-mcp-server:1.3.0@sha256:423a6b8e2ee06affcf090892f40c86469caba45fd2448ffa8ca5d717a174f7d5 \
   -t terramig:local .
 ```
 

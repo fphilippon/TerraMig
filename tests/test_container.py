@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 import tomllib
 import unittest
 
@@ -16,11 +17,14 @@ class ContainerImageTests(unittest.TestCase):
         self.assertIn("bobshell-${BOB_VERSION}.tgz", self.dockerfile)
         self.assertIn("google-cloud-cli", self.dockerfile)
         self.assertIn("releases.hashicorp.com/terraform", self.dockerfile)
-        self.assertIn("hashicorp/terraform-mcp-server:1.1.0", self.dockerfile)
+        self.assertRegex(
+            self.dockerfile,
+            r"ARG TERRAFORM_MCP_IMAGE=hashicorp/terraform-mcp-server:\d+\.\d+\.\d+@sha256:[0-9a-f]{64}\n",
+        )
 
     def test_bob_install_is_pinned_verified_and_node_is_supported(self) -> None:
         self.assertIn("node:22-bookworm-slim", self.dockerfile)
-        self.assertIn("ARG COPILOT_VERSION=1.0.71", self.dockerfile)
+        self.assertRegex(self.dockerfile, r"(?m)^ARG COPILOT_VERSION=\d+\.\d+\.\d+$")
         self.assertIn("ARG BOB_VERSION=1.0.6", self.dockerfile)
         self.assertIn("sha256sum --check --strict", self.dockerfile)
 
@@ -52,9 +56,7 @@ class ContainerImageTests(unittest.TestCase):
             self.assertIn(f"command -v {binary}", self.dockerfile)
 
     def test_runtime_dependencies_are_pinned_and_installed(self) -> None:
-        requirements = (ROOT / "requirements.txt").read_text()
         compose = (ROOT / "compose.yaml").read_text()
-        self.assertIn("psycopg[binary]==3.3.4", requirements)
         self.assertIn("--requirement requirements.txt", self.dockerfile)
         self.assertIn('"setuptools>=78.1.1"', self.dockerfile)
         self.assertIn('"msgpack==1.2.1"', self.dockerfile)
@@ -62,13 +64,31 @@ class ContainerImageTests(unittest.TestCase):
         self.assertIn("patch_gcloud_dependencies.py", self.dockerfile)
         self.assertIn("postgres:17.10-bookworm", compose)
         self.assertIn("TERRAMIG_REQUIRE_POSTGRES", compose)
-        self.assertRegex(
-            requirements,
-            r"(?m)^cryptography==[0-9]+(?:\.[0-9]+){2}(?:[.-][0-9A-Za-z.-]+)?\s*$",
-        )
         self.assertIn("TERRAMIG_SECRET_ENCRYPTION_KEY", compose)
         self.assertIn("COPILOT_GITHUB_TOKEN", compose)
         self.assertIn("BOBSHELL_API_KEY", compose)
+
+    def test_runtime_dependency_pins_match_project_metadata(self) -> None:
+        requirements = [
+            line.strip()
+            for line in (ROOT / "requirements.txt").read_text().splitlines()
+            if line.strip() and not line.lstrip().startswith("#")
+        ]
+        project = tomllib.loads((ROOT / "pyproject.toml").read_text())
+        self.assertCountEqual(requirements, project["project"]["dependencies"])
+        names = set()
+        for requirement in requirements:
+            with self.subTest(requirement=requirement):
+                match = re.fullmatch(
+                    r"([A-Za-z0-9_.-]+)(?:\[([A-Za-z0-9_,.-]+)\])?"
+                    r"==[0-9]+(?:\.[0-9]+){2}(?:[.-][0-9A-Za-z.-]+)?",
+                    requirement,
+                )
+                self.assertIsNotNone(match, "Runtime dependencies must use exact version pins")
+                names.add(match.group(1))
+                if match.group(1) == "psycopg":
+                    self.assertIn("binary", (match.group(2) or "").split(","))
+        self.assertTrue({"cryptography", "psycopg"}.issubset(names))
 
     def test_capability_catalogs_are_packaged_with_the_application(self) -> None:
         project = tomllib.loads((ROOT / "pyproject.toml").read_text())
