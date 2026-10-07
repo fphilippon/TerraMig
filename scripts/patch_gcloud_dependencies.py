@@ -26,7 +26,9 @@ def main() -> None:
         return
 
     for site in sites:
-        for name in ("msgpack", "setuptools", "pkg_resources"):
+        # This SDK is apt-managed; its bundled pip is not needed to run gcloud.
+        # Remove the unused installer and its independently vendored libraries.
+        for name in ("msgpack", "setuptools", "pkg_resources", "pip"):
             for path in site.glob(f"{name}*"):
                 if path.is_dir():
                     shutil.rmtree(path)

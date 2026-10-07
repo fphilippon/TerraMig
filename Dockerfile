@@ -2,13 +2,33 @@
 
 ARG NODE_IMAGE=node:22-bookworm-slim
 ARG RUNTIME_IMAGE=python:3.13-slim-bookworm
-ARG TERRAFORM_MCP_IMAGE=hashicorp/terraform-mcp-server:1.1.0@sha256:312d63756b5474df384b1844af55b58ca48cbe0996871e1d6c4239bfcd6fcd29
+ARG GO_IMAGE=golang:1.26.8-bookworm@sha256:dc9ad6c05acc7a88e5b71bde60a5fe3bd4b9f0db209011711b464107438a8107
 
-FROM ${TERRAFORM_MCP_IMAGE} AS terraform-mcp-tools
+# The upstream MCP 1.3.0 binary embeds vulnerable gRPC 1.83.0. Build the
+# verified release source with the patched library until upstream ships it.
+FROM ${GO_IMAGE} AS terraform-mcp-tools
+
+ARG TARGETARCH
+ARG TERRAFORM_MCP_REVISION=943a44eb28dc58432b34efdf08f7fc846adc446d
+ARG TERRAFORM_MCP_SOURCE_SHA256=07204d7c09401761e56deab356cfafe9fe17e3d2d534b7a815b8fdb74bf2d100
+ARG TERRAFORM_MCP_GRPC_VERSION=1.83.2
+
+WORKDIR /build
+RUN curl --fail --silent --show-error --location \
+      "https://codeload.github.com/hashicorp/terraform-mcp-server/tar.gz/${TERRAFORM_MCP_REVISION}" \
+      --output /tmp/terraform-mcp-source.tar.gz \
+    && printf '%s  %s\n' "${TERRAFORM_MCP_SOURCE_SHA256}" /tmp/terraform-mcp-source.tar.gz \
+      | sha256sum --check --strict \
+    && tar --extract --gzip --file /tmp/terraform-mcp-source.tar.gz --strip-components=1 \
+    && go get "google.golang.org/grpc@v${TERRAFORM_MCP_GRPC_VERSION}" \
+    && go test ./cmd/terraform-mcp-server ./version \
+    && CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build \
+      -ldflags="-s -w -X github.com/hashicorp/terraform-mcp-server/version.VersionMetadata=terramig.grpc${TERRAFORM_MCP_GRPC_VERSION}" \
+      -o /bin/terraform-mcp-server ./cmd/terraform-mcp-server
 
 FROM ${NODE_IMAGE} AS ai-cli-tools
 
-ARG COPILOT_VERSION=1.0.71
+ARG COPILOT_VERSION=1.0.92
 ARG BOB_VERSION=1.0.6
 ARG BOB_SHA256=6ec51abec4251d41ec45709030988b90baa659f535fc8d14dd003023dd163a5b
 
@@ -34,7 +54,7 @@ RUN curl --fail --silent --show-error --location \
 FROM ${RUNTIME_IMAGE} AS hashicorp-cli-tools
 
 ARG TARGETARCH
-ARG TERRAFORM_VERSION=1.15.8
+ARG TERRAFORM_VERSION=1.16.5
 
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends ca-certificates curl unzip \
@@ -91,6 +111,10 @@ RUN apt-get update \
     && python3 /tmp/patch_gcloud_dependencies.py \
     && rm -rf /tmp/gcloud-patches /tmp/patch_gcloud_dependencies.py /var/lib/apt/lists/*
 
+# pip is needed only while building. Removing it also removes its vendored
+# urllib3 copy, which currently has no patched pip release.
+RUN python3 -m pip uninstall --yes pip
+
 ENV HOME=/app
 
 # Both AI CLIs are Node applications. Copy the Node runtime and package payloads
@@ -102,6 +126,7 @@ COPY --from=ai-cli-tools /usr/local/lib/node_modules/@github /usr/local/lib/node
 COPY --from=ai-cli-tools /usr/local/lib/node_modules/bobshell /usr/local/lib/node_modules/bobshell
 COPY --from=hashicorp-cli-tools /usr/local/bin/terraform /usr/local/bin/terraform
 COPY --from=terraform-mcp-tools /bin/terraform-mcp-server /usr/local/bin/terraform-mcp-server
+COPY --from=terraform-mcp-tools /build/LICENSE /usr/local/share/licenses/terraform-mcp-server/LICENSE
 
 RUN ln -s /usr/local/lib/node_modules/@github/copilot/npm-loader.js /usr/local/bin/copilot \
     && groupadd --gid "${TERRAMIG_GID}" --system terramig \

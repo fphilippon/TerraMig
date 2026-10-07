@@ -332,12 +332,15 @@ The tool versions are pinned by default and can be overridden explicitly:
 
 ```bash
 docker build \
-  --build-arg COPILOT_VERSION=1.0.71 \
+  --build-arg COPILOT_VERSION=1.0.92 \
   --build-arg BOB_VERSION=1.0.6 \
-  --build-arg TERRAFORM_VERSION=1.15.8 \
-  --build-arg TERRAFORM_MCP_IMAGE=hashicorp/terraform-mcp-server:1.1.0@sha256:312d63756b5474df384b1844af55b58ca48cbe0996871e1d6c4239bfcd6fcd29 \
+  --build-arg TERRAFORM_VERSION=1.16.5 \
   -t terramig:local .
 ```
+
+Terraform MCP Server is built from checksum-verified 1.3.0 release source with gRPC 1.83.2;
+the Go builder is pinned by image digest. The final image omits pip, including the copy bundled
+with the apt-managed Google Cloud CLI. Install additional Python packages during image builds.
 
 Pass secrets at runtime rather than baking them into the image. Copilot accepts `COPILOT_GITHUB_TOKEN`; Bob accepts `BOBSHELL_API_KEY`; and gcloud can use a read-only mounted Application Default Credentials file through `GOOGLE_APPLICATION_CREDENTIALS`:
 
