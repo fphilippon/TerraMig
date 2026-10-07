@@ -5,7 +5,7 @@ description = "AI-assisted adoption of existing GCP infrastructure into HCP Terr
 license = { file = "LICENSE" }
 requires-python = ">=3.11"
 dependencies = [
-  "cryptography==50.0.0",
+  "cryptography==50.0.1",
   "psycopg[binary]==3.3.6",
 ]
 
