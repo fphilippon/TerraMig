@@ -19,7 +19,7 @@ class ContainerImageTests(unittest.TestCase):
         self.assertIn("releases.hashicorp.com/terraform", self.dockerfile)
         self.assertRegex(
             self.dockerfile,
-            r"ARG TERRAFORM_MCP_IMAGE=hashicorp/terraform-mcp-server:\d+\.\d+\.\d+@sha256:[0-9a-f]{64}\n",
+            r"(?m)^ARG TERRAFORM_MCP_REVISION=[0-9a-f]{40}$",
         )
 
     def test_bob_install_is_pinned_verified_and_node_is_supported(self) -> None:
