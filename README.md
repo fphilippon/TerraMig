@@ -338,6 +338,10 @@ docker build \
   -t terramig:local .
 ```
 
+Terraform MCP Server is built from checksum-verified 1.3.0 release source with gRPC 1.83.2;
+the Go builder is pinned by image digest. The final image omits pip, including the copy bundled
+with the apt-managed Google Cloud CLI. Install additional Python packages during image builds.
+
 Pass secrets at runtime rather than baking them into the image. Copilot accepts `COPILOT_GITHUB_TOKEN`; Bob accepts `BOBSHELL_API_KEY`; and gcloud can use a read-only mounted Application Default Credentials file through `GOOGLE_APPLICATION_CREDENTIALS`:
 
 ```bash
