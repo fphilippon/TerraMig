@@ -1,2 +1,2 @@
-cryptography==50.0.1
+cryptography==50.0.2
 psycopg[binary]==3.3.6
