@@ -128,3 +128,11 @@ vulnerabilities:
       - "usr/local/bin/terraform-mcp-server"
     statement: No patched stable HashiCorp Terraform or Terraform MCP release is available.
     expired_at: 2026-10-29
+  # Google Cloud CLI 592.0.0 still ships this checksum helper built with
+  # Go 1.27.2. Other Go binaries are upgraded to patched toolchains above.
+  # Recheck the vendor release within two weeks; do not exempt other paths.
+  - id: CVE-2026-111943
+    paths:
+      - "usr/lib/google-cloud-sdk/bin/gcloud-crc32c"
+    statement: Google Cloud CLI 592.0.0 bundles Go 1.27.2; no patched vendor checksum helper is available as of 2026-11-04.
+    expired_at: 2026-11-18
