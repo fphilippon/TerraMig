@@ -2,15 +2,14 @@
 
 ARG NODE_IMAGE=node:22-bookworm-slim
 ARG RUNTIME_IMAGE=python:3.13-slim-bookworm
-ARG GO_IMAGE=golang:1.26.8-bookworm@sha256:dc9ad6c05acc7a88e5b71bde60a5fe3bd4b9f0db209011711b464107438a8107
+ARG GO_IMAGE=golang:1.27.3-bookworm@sha256:d9b6a1beb9474adc2a1ce842573639b44b2a0dd49b6669f51d3821baf9ec37c9
 
-# The upstream MCP 1.3.0 binary embeds vulnerable gRPC 1.83.0. Build the
-# verified release source with the patched library until upstream ships it.
+# Build the verified MCP 1.4.1 release with a patched Go toolchain.
 FROM ${GO_IMAGE} AS terraform-mcp-tools
 
 ARG TARGETARCH
-ARG TERRAFORM_MCP_REVISION=943a44eb28dc58432b34efdf08f7fc846adc446d
-ARG TERRAFORM_MCP_SOURCE_SHA256=07204d7c09401761e56deab356cfafe9fe17e3d2d534b7a815b8fdb74bf2d100
+ARG TERRAFORM_MCP_REVISION=3781509a674482ca7e2821fab8159a25e3b29bdf
+ARG TERRAFORM_MCP_SOURCE_SHA256=2e509eb8c605bcca3e8fbf66175ff8fb459eb21a43ae297e66bebed3af33f08b
 ARG TERRAFORM_MCP_GRPC_VERSION=1.83.2
 
 WORKDIR /build
@@ -54,7 +53,7 @@ RUN curl --fail --silent --show-error --location \
 FROM ${RUNTIME_IMAGE} AS hashicorp-cli-tools
 
 ARG TARGETARCH
-ARG TERRAFORM_VERSION=1.16.5
+ARG TERRAFORM_VERSION=1.17.1
 
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends ca-certificates curl unzip \
@@ -107,7 +106,7 @@ RUN apt-get update \
     && CLOUDSDK_SKIP_PY_COMPILATION=1 apt-get install --yes --no-install-recommends google-cloud-cli \
     && python3 -m pip download --no-cache-dir --only-binary=:all: --no-deps \
       --dest /tmp/gcloud-patches \
-      "msgpack==1.2.1" "setuptools>=78.1.1" \
+      "msgpack==1.2.4" "setuptools>=78.1.1" \
     && python3 /tmp/patch_gcloud_dependencies.py \
     && rm -rf /tmp/gcloud-patches /tmp/patch_gcloud_dependencies.py /var/lib/apt/lists/*
 
