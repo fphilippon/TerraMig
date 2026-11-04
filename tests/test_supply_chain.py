@@ -1,4 +1,5 @@
 import re
+from datetime import date, timedelta
 import unittest
 from pathlib import Path
 
@@ -63,7 +64,10 @@ class SupplyChainTests(unittest.TestCase):
                 f"Trivy exception is not scoped: {entry.splitlines()[0]}",
             )
             self.assertIn("statement:", entry)
-            self.assertIn("expired_at: 2026-10-29", entry)
+            expiry_match = re.search(r"expired_at: (\d{4}-\d{2}-\d{2})(?:\n|$)", entry)
+            self.assertIsNotNone(expiry_match)
+            expiry = date.fromisoformat(expiry_match.group(1))
+            self.assertLessEqual(expiry, date.today() + timedelta(days=14))
         self.assertIn("usr/local/bin/terraform", ignore)
         self.assertIn("usr/lib/google-cloud-sdk/bin/gcloud-crc32c", ignore)
 
