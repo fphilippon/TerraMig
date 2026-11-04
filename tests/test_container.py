@@ -59,7 +59,7 @@ class ContainerImageTests(unittest.TestCase):
         compose = (ROOT / "compose.yaml").read_text()
         self.assertIn("--requirement requirements.txt", self.dockerfile)
         self.assertIn('"setuptools>=78.1.1"', self.dockerfile)
-        self.assertIn('"msgpack==1.2.1"', self.dockerfile)
+        self.assertIn('"msgpack==1.2.4"', self.dockerfile)
         self.assertIn("gcloud-patches", self.dockerfile)
         self.assertIn("patch_gcloud_dependencies.py", self.dockerfile)
         self.assertIn("postgres:17.10-bookworm", compose)

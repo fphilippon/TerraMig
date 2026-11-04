@@ -334,7 +334,7 @@ The tool versions are pinned by default and can be overridden explicitly:
 docker build \
   --build-arg COPILOT_VERSION=1.0.92 \
   --build-arg BOB_VERSION=1.0.6 \
-  --build-arg TERRAFORM_VERSION=1.16.5 \
+  --build-arg TERRAFORM_VERSION=1.17.1 \
   -t terramig:local .
 ```
 
